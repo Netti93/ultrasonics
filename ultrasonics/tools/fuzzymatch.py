@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
 """
-fuzzymatch
-Fuzzy-string song matching tool for ultrasonics.
+rapidfuzz-based fuzzy-string song matching tool
 
 Given an input song, input playlist data, and a threshold, the song is checked for duplicates,
 returning True if one is found. The weighting for each song field is:
@@ -16,12 +15,12 @@ returning True if one is found. The weighting for each song field is:
 
 It goes without saying that inaccurate music tags (such as from local files) may produce inaccurate results.
 
-XDGFX, 2020
+XDGFX, 2020, updated 2025
 """
 
 import re
 
-from fuzzywuzzy import fuzz, process
+from rapidfuzz import fuzz, process
 
 from ultrasonics import logs
 
@@ -29,8 +28,8 @@ log = logs.create_log(__name__)
 
 # List of words and patterns to ignore when testing similarity
 cutoff_regex = [
-    "[([](feat|ft|featuring|original|prod).+?[)\]]",
-    "[ (\- )\-]+(feat|ft|featuring|original|prod).+?(?=[(\n])"
+    r"\[(\[](feat|ft|featuring|original|prod).+?[)\]]",
+    r"[ (\- )\-]+(feat|ft|featuring|original|prod).+?(?=[(\n])"
 ]
 
 
@@ -68,7 +67,7 @@ def duplicate(song, song_list, threshold):
         # Name and album scores
         for key in ["title", "album"]:
 
-            try:
+            if key in song and key in item:
                 a = re.sub(cutoff_regex[0], "", song[key],
                            flags=re.IGNORECASE) + "\n"
                 a = re.sub(cutoff_regex[1], " ", a,
@@ -81,21 +80,14 @@ def duplicate(song, song_list, threshold):
 
                 results[key] = fuzz.ratio(a, b)
 
-            except KeyError:
-                pass
-
         # Date score
-        try:
+        if "date" in song:
             results["date"] = fuzz.token_set_ratio(song["date"], item["date"])
-        except KeyError:
-            pass
 
         # Artist score can be a partial match; allowing missing artists
-        try:
+        if "artists" in item:
             results["artist"] = fuzz.partial_token_sort_ratio(
-                artist_string, " ".join(item["artists"]).lower())
-        except KeyError:
-            pass
+                artist_string, " ".join(sorted(item["artists"])).lower())
 
         weight = {
             "title": 8,
@@ -133,33 +125,26 @@ def similarity(a, b):
     @return: a number between 0 and 100 representing the similarity rating, where 100 is the same song.
     """
     # Check exact location match
-    try:
-        if a["location"] == b["location"]:
-            return 100
-    except KeyError:
-        pass
+    if "location" in a and "location" in b and a["location"] == b["location"]:
+        return 100
 
     # Check exact ID match
     if "id" in a and "id" in b:
         for key in a["id"]:
-            try:
+            if key in b["id"]:
                 if a["id"][key].strip() == b["id"][key].strip():
                     return 100
-            except KeyError:
-                # Missing key in one of the songs
-                pass
 
     # Check fuzzy matches
     results = {}
 
     # ISRC score
-    try:
+    if "isrc" in a and "isrc" in b:
         results["isrc"] = int(a["isrc"].strip().lower() ==
                               b["isrc"].strip().lower()) * 100
         isrc_match = results["isrc"] == 100
-    except KeyError:
+    else:
         isrc_match = False
-        pass
 
     # Name and album scores
     for key in ["title", "album"]:
