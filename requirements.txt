@@ -21,13 +21,13 @@ mysqlclient>=2.2.4
 aiomysql>=0.2.0
 
 # Included Plugins
-# Keeping plugin versions unchanged for now to ensure compatibility
-mutagen==1.45.1
-requests==2.26.0
+mutagen~=1.46.0
+requests~=2.31.0
 rapidfuzz>=3.6.1
-spotipy==2.19.0
-tqdm==4.62.3
-PlexAPI==4.7.2
+spotipy~=2.23.0
+tqdm~=4.65.0
+PlexAPI~=4.14.0
+tidalapi~=0.7.2
 
 # Testing
 pytest>=8.0.0

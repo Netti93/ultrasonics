@@ -17,6 +17,7 @@ from fastapi.websockets import WebSocket
 from uvicorn import Server, Config
 
 from ultrasonics.webapp.routes import api, web
+from ultrasonics.webapp.utils import updater
 from ultrasonics.webapp.utils.socket import socket_manager
 
 app = FastAPI(title="Ultrasonics API")
@@ -49,6 +50,11 @@ async def websocket_endpoint(websocket: WebSocket):
         print(f"WebSocket error: {e}")
     finally:
         await socket_manager.disconnect(websocket)
+
+# Update processor
+@app.context_processor
+async def inject_vars():
+    return dict(version=updater.version, new_version=updater.new_version)
 
 # Error handling
 @app.exception_handler(Exception)

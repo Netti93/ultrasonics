@@ -13,6 +13,7 @@ import asyncio
 
 from ultrasonics import database, plugins, scheduler
 from ultrasonics.webapp import server_start
+from ultrasonics.webapp.utils import updater
 
 _ultrasonics = {
     "version": "1.0.0-rc.1",
@@ -21,6 +22,9 @@ _ultrasonics = {
 
 async def main():
     """Main async entry point."""
+    # Check for updates
+    await updater.start(_ultrasonics["version"])
+
     # Initialize database
     await database.Core().connect()
     

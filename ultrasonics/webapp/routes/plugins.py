@@ -10,6 +10,7 @@ Updated and modernized by McLain Cronin, 2025
 
 from flask import Blueprint, render_template, request
 from ..utils.socket import socketio
+from werkzeug.utils import secure_filename
 
 from ultrasonics import database, logs, plugins
 
@@ -46,6 +47,17 @@ def configure_plugin():
         component = request.form.get('component')
         new_data = {key: value for key, value in request.form.to_dict().items() if key not in [
             'action', 'plugin', 'version', 'component'] and value != ""}
+
+        # Handle CSV file upload for csv_import plugin (by MauliQT, 2026)
+        if plugin == "csv_import":
+            uploaded = request.files.get("csv_file")
+            if uploaded and uploaded.filename:
+                upload_dir = os.path.join("config", "uploads")
+                os.makedirs(upload_dir, exist_ok=True)
+                filename = secure_filename(uploaded.filename)
+                file_path = os.path.join(upload_dir, filename)
+                uploaded.save(file_path)
+                new_data["path"] = file_path
 
         # Merge new settings with existing database settings
         data = plugins.plugin_load(plugin, version)
