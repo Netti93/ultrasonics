@@ -11,7 +11,7 @@ Gavin Edens, Luke Simmons, 2023
 
 from app import _ultrasonics
 from ultrasonics import logs
-from ultrasonics.tools import api_key, fuzzymatch, name_filter
+from ultrasonics.tools import fuzzymatch, name_filter
 
 log = logs.create_log(__name__)
 

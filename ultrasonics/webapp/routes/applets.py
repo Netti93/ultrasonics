@@ -15,7 +15,7 @@ from flask_socketio import emit
 
 from ultrasonics import database, logs, plugins
 from ultrasonics.tools import random_words
-from ..utils.socket import socketio
+#from ..utils.socket import socketio
 
 log = logs.create_log(__name__)
 bp = Blueprint('applets', __name__)

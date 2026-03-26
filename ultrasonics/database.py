@@ -19,7 +19,8 @@ from sqlalchemy import select, update, insert, delete
 from dotenv import load_dotenv
 
 from ultrasonics import logs
-from ultrasonics.models import Base, User, Playlist, Song, Plugin
+from ultrasonics.models import Base, User, Playlist, Song
+from ultrasonics.models import Plugin as PluginModel
 
 log = logs.create_log(__name__)
 
@@ -91,9 +92,10 @@ class Core:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
             log.info("Database connection successful")
+            
+            from app import _ultrasonics
 
             if await self.new_install():
-                from app import _ultrasonics
                 _ultrasonics["new_install"] = True
 
                 # Create tuple with default settings
@@ -204,7 +206,7 @@ class Plugin:
         """
         async with engine.begin() as conn:
             await conn.execute(
-                insert(Plugin).values(
+                insert(PluginModel).values(
                     name=name,
                     version=version,
                     enabled=True,
@@ -220,8 +222,8 @@ class Plugin:
         """
         async with engine.begin() as conn:
             await conn.execute(
-                update(Plugin)
-                .where(Plugin.name == name)
+                update(PluginModel)
+                .where(PluginModel.name == name)
                 .values(
                     version=version,
                     config=settings
@@ -236,9 +238,18 @@ class Plugin:
         """
         async with engine.begin() as conn:
             result = await conn.execute(
-                select(Plugin).where(Plugin.name == name)
+                select(PluginModel).where(PluginModel.name == name)
             )
             plugin = result.first()
+            #if plugin:
+            #    log.info("Found database entry for {plugin.name} with config {plugin.config}")
+            #    config = plugin.config
+            #    if config:
+            #        return config
+            #    else:
+            #        return {}
+            #else:
+            #    return None
             return plugin.config if plugin else None
 
     async def delete(self, name: str) -> None:
@@ -247,7 +258,7 @@ class Plugin:
         """
         async with engine.begin() as conn:
             await conn.execute(
-                delete(Plugin).where(Plugin.name == name)
+                delete(PluginModel).where(PluginModel.name == name)
             )
             await conn.commit()
             log.info("Plugin database entry deleted")
@@ -293,9 +304,20 @@ class Applet:
         async with engine.begin() as conn:
             result = await conn.execute(
                 select(Playlist).where(Playlist.name == applet_id)
+
             )
             applet = result.first()
             return applet.extra_data if applet else None
+
+    async def get_all(self) -> Optional[List[Playlist]]:
+        """
+        Get applet data from the database.
+        """
+        async with engine.begin() as conn:
+            applets = await conn.execute(
+                select(Playlist)
+            )
+            return applets if applets else None
 
     async def delete(self, applet_id: str) -> None:
         """

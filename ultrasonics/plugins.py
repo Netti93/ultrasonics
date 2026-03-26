@@ -84,11 +84,12 @@ async def plugin_gather():
                 found_plugins[title].plugin_logs_path = plugin_path.replace(
                     "ultrasonics.", "").replace("official_plugins.up_", "🎧 ").replace("plugins.up_", "🎤 ")
 
-                log.info(f"Found plugin: {plugin}")
+                log.info(f"Found plugin '{title}': {plugin}")
 
                 # Check if plugin exists in database
                 plugin_data = await dbp.get(title)
-                if not plugin_data:
+                #if not plugin_data:
+                if plugin_data is None:
                     # Create new entry
                     await dbp.new(title, handshake_version)
                     log.info(f"Created new database entry for plugin {title} v{handshake_version}")

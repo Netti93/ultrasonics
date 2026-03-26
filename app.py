@@ -23,7 +23,7 @@ _ultrasonics = {
 async def main():
     """Main async entry point."""
     # Check for updates
-    await updater.start(_ultrasonics["version"])
+    #await updater.start(_ultrasonics["version"])
 
     # Initialize database
     await database.Core().connect()

@@ -59,17 +59,17 @@
             {% for item in applet_list %}
             <div class="tags has-addons">
                 {% if item['applet_lastrun'] %}
-                {% if item['applet_lastrun']['result'] %}
-                <span class="tag is-lastrun is-medium tooltip tooltip-multiline"
-                    data-tooltip="Last Run: Success!&#xa;{{ item['applet_lastrun']['time'] }}">
-                    ✓
-                </span>
-                {% else %}
-                <span class="tag is-lastrun is-medium tooltip tooltip-multiline"
-                    data-tooltip="Last Run: Failed.&#xa;{{ item['applet_lastrun']['time'] }}">
-                    ✗
-                </span>
-                {% endif %}
+                    {% if item['applet_lastrun']['result'] %}
+                    <span class="tag is-lastrun is-medium tooltip tooltip-multiline"
+                        data-tooltip="Last Run: Success!&#xa;{{ item['applet_lastrun']['time'] }}">
+                        ✓
+                    </span>
+                    {% else %}
+                    <span class="tag is-lastrun is-medium tooltip tooltip-multiline"
+                        data-tooltip="Last Run: Failed.&#xa;{{ item['applet_lastrun']['time'] }}">
+                        ✗
+                    </span>
+                    {% endif %}
                 {% else %}
                 <span class="tag is-lastrun is-medium tooltip" data-tooltip="Last Run: Never">
                     ?

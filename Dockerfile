@@ -5,7 +5,7 @@ WORKDIR /
 
 VOLUME [ "/config", "/plugins" ]
 
-RUN apk --no-cache add gcc g++ musl-dev
+RUN apk --no-cache add gcc g++ musl-dev pkgconfig mariadb-dev
 RUN pip install -r requirements.txt
 
 EXPOSE 8080

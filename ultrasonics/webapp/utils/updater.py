@@ -17,24 +17,24 @@ log = logs.create_log(__name__)
 version = None
 new_version = None
 
-def get_version():
+async def get_version():
     request = requests.get("https://api.github.com/repos/XDGFX/ultrasonics/releases")
     return request.json()[0]
 
-def update_version():
+async def update_version():
     global new_version
     log.debug("Checking for updates")
-    new_version = get_version()['name']
+    new_version = (await get_version())['name']
     log.debug("Newest version: %s", new_version)
     if new_version != version:
         log.info("Update Available: %s", new_version)
 
-def start(current):
+async def start(current):
     global version, new_version
     version = current
     new_version = current
     try:
-        update_version()
+        await update_version()
         thread = Timer(3600, update_version)
     except RequestException:
         log.warning("Could not check for updates.")
